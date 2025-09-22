@@ -21,18 +21,18 @@ public class Main {
 
             Instant start = Instant.now();
             analytics.calculateWithLoop(flights);
-            Instant end = Instant.now();
-            System.out.printf("loop: %d ms\n", Duration.between(start, end).toMillis());
+            long result = Duration.between(start, Instant.now()).toMillis();
+            System.out.printf("loop: %d ms\n", result);
 
             start = Instant.now();
             analytics.calculateWithStream(flights);
-            end = Instant.now();
-            System.out.printf("stream: %d ms\n", Duration.between(start, end).toMillis());
+            result = Duration.between(start, Instant.now()).toMillis();
+            System.out.printf("stream: %d ms\n", result);
 
             start = Instant.now();
             analytics.calculateWithCustomCollector(flights);
-            end = Instant.now();
-            System.out.printf("stream custom: %d ms\n", Duration.between(start, end).toMillis());
+            result = Duration.between(start, Instant.now()).toMillis();
+            System.out.printf("stream custom: %d ms\n", result);
         }
     }
 }
