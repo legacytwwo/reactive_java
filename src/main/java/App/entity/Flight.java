@@ -70,22 +70,4 @@ public class Flight {
     public Airplane getAirplane() {
         return airplane;
     }
-
-    @Override
-    public String toString() {
-        return String.format(
-                "--- Рейс %s (%s) ---\n" +
-                        "  Статус: %s\n" +
-                        "  Маршрут: %s -> %s\n" +
-                        "  Вылет: %s\n" +
-                        "  Прибытие: %s\n" +
-                        "  Самолет: %s\n" +
-                        "  Количество пассажиров: %d\n",
-                this.flightNumber, this.airline.name(),
-                this.status,
-                this.departureAirport.getName(), this.arrivalAirport.getName(),
-                this.departureTime, this.arrivalTime,
-                this.airplane.getModel(),
-                this.passengerNames.size());
-    }
 }
