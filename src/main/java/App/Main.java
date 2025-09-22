@@ -14,7 +14,7 @@ public class Main {
         FlightGenerator generator = new FlightGenerator();
         FlightAnalytic analytics = new FlightAnalytic();
 
-        int[] testCases = {5000, 50000, 250000};
+        int[] testCases = { 5000, 50000, 250000 };
         for (int size : testCases) {
             System.out.printf("test case %d elems start\n", size);
             List<Flight> flights = generator.generate(size);

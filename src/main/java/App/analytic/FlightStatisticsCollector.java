@@ -17,7 +17,7 @@ public class FlightStatisticsCollector implements Collector<Flight, StatisticAcc
     public FlightStatisticsCollector(long totalFlights) {
         this.totalFlights = totalFlights;
     }
-    
+
     @Override
     public Supplier<StatisticAccumulator> supplier() {
         return StatisticAccumulator::new;
@@ -36,7 +36,8 @@ public class FlightStatisticsCollector implements Collector<Flight, StatisticAcc
     @Override
     public Function<StatisticAccumulator, FlightStatistics> finisher() {
         return acc -> {
-            return new FlightStatistics(totalFlights, acc.totalPassengers, (double) acc.totalDurationMinutes / totalFlights);
+            return new FlightStatistics(totalFlights, acc.totalPassengers,
+                    (double) acc.totalDurationMinutes / totalFlights);
         };
     }
 

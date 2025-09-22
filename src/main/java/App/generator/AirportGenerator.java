@@ -6,7 +6,8 @@ import java.util.Random;
 import App.entity.Airport;
 
 public class AirportGenerator {
-    public record AirportPair(Airport departure, Airport arrival) {}
+    public record AirportPair(Airport departure, Airport arrival) {
+    }
 
     private static final List<Airport> AIRPORTS = List.of(
             new Airport("SVO", "Шереметьево", "Москва"),
@@ -23,11 +24,11 @@ public class AirportGenerator {
     public AirportPair generateAirportPair() {
         Airport departure = generateRandomAirport();
         Airport arrival;
-        
+
         do {
             arrival = generateRandomAirport();
         } while (arrival.equals(departure));
-        
+
         return new AirportPair(departure, arrival);
     }
 }
