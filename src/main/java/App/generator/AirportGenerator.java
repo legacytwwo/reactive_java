@@ -15,10 +15,10 @@ public class AirportGenerator {
             new Airport("AER", "Сочи", "Адлер"),
             new Airport("OVB", "Толмачёво", "Новосибирск"),
             new Airport("SVX", "Кольцово", "Екатеринбург"));
-    private static final Random RANDOM = new Random();
+    private static final Random random = new Random();
 
     private Airport generateRandomAirport() {
-        return AIRPORTS.get(RANDOM.nextInt(AIRPORTS.size()));
+        return AIRPORTS.get(random.nextInt(AIRPORTS.size()));
     }
 
     public AirportPair generateAirportPair() {

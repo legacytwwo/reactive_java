@@ -1,5 +1,7 @@
 package App.analytic;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
@@ -36,8 +38,12 @@ public class FlightStatisticsCollector implements Collector<Flight, StatisticAcc
     @Override
     public Function<StatisticAccumulator, FlightStatistics> finisher() {
         return acc -> {
-            return new FlightStatistics(totalFlights, acc.totalPassengers,
-                    (double) acc.totalDurationMinutes / totalFlights);
+            Map<String, Double> avgPerTail = new HashMap<>();
+            acc.flightCounts.forEach((tailNumber, count) -> {
+                long sum = acc.durationSums.get(tailNumber);
+                avgPerTail.put(tailNumber, (double) sum / count);
+            });
+            return new FlightStatistics(totalFlights, (double) acc.totalDurationMinutes / totalFlights, avgPerTail);
         };
     }
 

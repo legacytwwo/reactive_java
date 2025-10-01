@@ -1,27 +1,24 @@
 package App.generator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import App.entity.Airplane;
+import App.entity.AirplaneModel;
 
 public class AirplaneGenerator {
-    private record AirplaneModel(String model, int capacity) {
-    }
-
-    private static final List<AirplaneModel> AIRPLANE_MODELS = List.of(
-            new AirplaneModel("Boeing 737", 200),
-            new AirplaneModel("Airbus A320", 150),
-            new AirplaneModel("Sukhoi Superjet 100", 100));
+    private static final AirplaneModel[] MODELS = AirplaneModel.values();
     private static final Random random = new Random();
 
-    public Airplane generate() {
-        AirplaneModel randomModel = AIRPLANE_MODELS.get(random.nextInt(AIRPLANE_MODELS.size()));
-        int number = 10000 + random.nextInt(90000);
-        String tailNumber = String.valueOf(number);
-        return new Airplane(
-                tailNumber,
-                randomModel.model(),
-                randomModel.capacity());
+    public List<Airplane> generateFromSize(int poolSize) {
+        List<Airplane> pool = new ArrayList<>();
+        for (int i = 0; i < poolSize; i++) {
+            AirplaneModel randomModel = MODELS[random.nextInt(MODELS.length)];
+            int number = 10000 + random.nextInt(90000);
+            String tailNumber = String.valueOf(number);
+            pool.add(new Airplane(tailNumber, randomModel));
+        }
+        return pool;
     }
 }
