@@ -10,40 +10,36 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 import App.entity.Flight;
-import App.entity.FlightStatistics;
 
-public class FlightStatisticsCollector implements Collector<Flight, StatisticAccumulator, FlightStatistics> {
+public class AvgDurationStatisticsCollector implements Collector<Flight, AvgDurationAccumulator, Map<String, Double>> {
 
-    private final long totalFlights;
-
-    public FlightStatisticsCollector(long totalFlights) {
-        this.totalFlights = totalFlights;
+    public AvgDurationStatisticsCollector() {
     }
 
     @Override
-    public Supplier<StatisticAccumulator> supplier() {
-        return StatisticAccumulator::new;
+    public Supplier<AvgDurationAccumulator> supplier() {
+        return AvgDurationAccumulator::new;
     }
 
     @Override
-    public BiConsumer<StatisticAccumulator, Flight> accumulator() {
-        return StatisticAccumulator::accumulate;
+    public BiConsumer<AvgDurationAccumulator, Flight> accumulator() {
+        return AvgDurationAccumulator::accumulate;
     }
 
     @Override
-    public BinaryOperator<StatisticAccumulator> combiner() {
-        return StatisticAccumulator::combine;
+    public BinaryOperator<AvgDurationAccumulator> combiner() {
+        return AvgDurationAccumulator::combine;
     }
 
     @Override
-    public Function<StatisticAccumulator, FlightStatistics> finisher() {
+    public Function<AvgDurationAccumulator, Map<String, Double>> finisher() {
         return acc -> {
             Map<String, Double> avgPerTail = new HashMap<>();
             acc.flightCounts.forEach((tailNumber, count) -> {
                 long sum = acc.durationSums.get(tailNumber);
                 avgPerTail.put(tailNumber, (double) sum / count);
             });
-            return new FlightStatistics(totalFlights, (double) acc.totalDurationMinutes / totalFlights, avgPerTail);
+            return avgPerTail;
         };
     }
 
