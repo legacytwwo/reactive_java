@@ -52,9 +52,12 @@ public class FlightGenerator {
         int passengerCount = 50 + random.nextInt(airplane.getPassengerCapacity() - 50);
         List<Passenger> passengers = IntStream.range(0, passengerCount)
                 .mapToObj(_ -> new Passenger(
-                        faker.name().fullName(),
-                        faker.number().numberBetween(1, 99),
-                        faker.phoneNumber().phoneNumber()))
+                    "faker.name().fullName()",
+                    50,
+                    ""))
+                    // faker.name().fullName(),
+                    // faker.number().numberBetween(1, 99),
+                    // faker.phoneNumber().phoneNumber()))
                 .collect(Collectors.toList());
 
         return new Flight(

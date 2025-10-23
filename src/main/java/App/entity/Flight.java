@@ -33,7 +33,14 @@ public class Flight {
         return flightNumber;
     }
 
-    public LocalDateTime getDepartureTime() {
+    public LocalDateTime getDepartureTime(long delay) {
+        if (delay > 0) {
+            double result = 0;
+            long startTime = System.currentTimeMillis();
+            while (System.currentTimeMillis() - startTime < delay) {
+                result = Math.tan(Math.atan(Math.random()));
+            }
+        }
         return departureTime;
     }
 
@@ -41,8 +48,15 @@ public class Flight {
         return arrivalTime;
     }
 
-    public FlightStatus getStatus() {
-        return status;
+    public FlightStatus getStatus(long delay) {
+        if (delay > 0) {
+            double result = 0;
+            long startTime = System.currentTimeMillis();
+            while (System.currentTimeMillis() - startTime < delay) {
+                result = Math.tan(Math.atan(Math.random()));
+            }
+        }
+        return this.status;
     }
 
     public Airline getAirline() {

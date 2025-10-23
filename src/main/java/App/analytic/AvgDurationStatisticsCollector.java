@@ -12,13 +12,15 @@ import java.util.stream.Collector;
 import App.entity.Flight;
 
 public class AvgDurationStatisticsCollector implements Collector<Flight, AvgDurationAccumulator, Map<String, Double>> {
+    private long delay = 0;
 
-    public AvgDurationStatisticsCollector() {
+    public AvgDurationStatisticsCollector(long delay) {
+        this.delay = delay;
     }
 
     @Override
     public Supplier<AvgDurationAccumulator> supplier() {
-        return AvgDurationAccumulator::new;
+        return () -> new AvgDurationAccumulator(this.delay);
     }
 
     @Override

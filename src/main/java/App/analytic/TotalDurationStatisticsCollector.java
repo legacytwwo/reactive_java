@@ -10,16 +10,17 @@ import java.util.stream.Collector;
 import App.entity.Flight;
 
 public class TotalDurationStatisticsCollector implements Collector<Flight, TotalDurationStatisticAccumulator, Double> {
-
+    private long delay = 0;
     private long totalFlights = 0;
 
-    public TotalDurationStatisticsCollector(long totalFlights) {
+    public TotalDurationStatisticsCollector(long totalFlights, long delay) {
+        this.delay = delay;
         this.totalFlights = totalFlights;
     }
 
     @Override
     public Supplier<TotalDurationStatisticAccumulator> supplier() {
-        return TotalDurationStatisticAccumulator::new;
+        return () -> new TotalDurationStatisticAccumulator(this.delay);
     }
 
     @Override

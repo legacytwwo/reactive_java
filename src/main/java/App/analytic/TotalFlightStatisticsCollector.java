@@ -10,13 +10,15 @@ import java.util.stream.Collector;
 import App.entity.Flight;
 
 public class TotalFlightStatisticsCollector implements Collector<Flight, TotalFlightsStatisticAccumulator, Long> {
+    private long delay = 0;
 
-    public TotalFlightStatisticsCollector() {
+    public TotalFlightStatisticsCollector(long delay) {
+        this.delay = delay;
     }
 
     @Override
     public Supplier<TotalFlightsStatisticAccumulator> supplier() {
-        return TotalFlightsStatisticAccumulator::new;
+        return () -> new TotalFlightsStatisticAccumulator(this.delay);
     }
 
     @Override
