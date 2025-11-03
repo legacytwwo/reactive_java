@@ -14,6 +14,7 @@ import App.entity.Airplane;
 import App.entity.Flight;
 import App.entity.FlightStatus;
 import App.entity.Passenger;
+import io.reactivex.rxjava3.core.Flowable;
 
 public class FlightGenerator {
     private final Random random = new Random();
@@ -39,6 +40,16 @@ public class FlightGenerator {
         return flights;
     }
 
+    public Flowable<Flight> generateFlowable(int count) {
+        List<Airplane> airplanePool = airplaneGenerator.generateFromSize(count / 100);
+
+        return Flowable.range(0, count)
+                .map(i -> {
+                    Airplane airplane = airplanePool.get(random.nextInt(airplanePool.size()));
+                    return createRandomFlight(airplane);
+                });
+    }
+
     private Flight createRandomFlight(Airplane airplane) {
         Airline airline = AIRLINES.get(random.nextInt(AIRLINES.size()));
         String flightNumber = airline.code() + "-" + (1000 + random.nextInt(8999));
@@ -52,12 +63,12 @@ public class FlightGenerator {
         int passengerCount = 50 + random.nextInt(airplane.getPassengerCapacity() - 50);
         List<Passenger> passengers = IntStream.range(0, passengerCount)
                 .mapToObj(_ -> new Passenger(
-                    "faker.name().fullName()",
-                    50,
-                    ""))
-                    // faker.name().fullName(),
-                    // faker.number().numberBetween(1, 99),
-                    // faker.phoneNumber().phoneNumber()))
+                        "faker.name().fullName()",
+                        50,
+                        ""))
+                // faker.name().fullName(),
+                // faker.number().numberBetween(1, 99),
+                // faker.phoneNumber().phoneNumber()))
                 .collect(Collectors.toList());
 
         return new Flight(

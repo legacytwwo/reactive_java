@@ -1,6 +1,7 @@
 package App.analytic;
 
 import java.time.Duration;
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,10 @@ import static java.util.stream.Collectors.groupingBy;
 
 import App.entity.Flight;
 import App.entity.FlightStatus;
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class FlightAnalytic {
     public long totalFlightWithLoop(List<Flight> flights, long delay) {
@@ -129,9 +134,6 @@ public class FlightAnalytic {
         return avgDurationPerTailNumber;
     }
 
-
-
-
     public long totalFlightWithCustomSpliterator(List<Flight> flights, long delay) {
         Spliterator<Flight> spliterator = new FlightSpliterator(flights);
         Stream<Flight> stream = StreamSupport.stream(spliterator, true);
@@ -180,11 +182,101 @@ public class FlightAnalytic {
         return totalDuration;
     }
 
-    public Map<String, Double> avgDurationPerTailNumberWithCustomCollectorSpliterator(List<Flight> flights, long delay) {
+    public Map<String, Double> avgDurationPerTailNumberWithCustomCollectorSpliterator(List<Flight> flights,
+            long delay) {
         Spliterator<Flight> spliterator = new FlightSpliterator(flights);
         Stream<Flight> stream = StreamSupport.stream(spliterator, true);
 
         Map<String, Double> avgDuration = stream.collect(new AvgDurationStatisticsCollector(delay));
         return avgDuration;
+    }
+
+    public long totalFlightWithReactive(List<Flight> flights, long delay) {
+        return Observable.fromIterable(flights)
+                .flatMap(flight -> Observable.just(flight)
+                        .subscribeOn(Schedulers.computation())
+                        .filter(f -> f.getStatus(delay) == FlightStatus.LANDED))
+                .count()
+                .blockingGet();
+    }
+
+    public double totalDurationWithReactive(List<Flight> flights, long delay) {
+        return Observable.fromIterable(flights)
+                .flatMap(flight -> Observable.just(flight)
+                        .subscribeOn(Schedulers.computation())
+                        .map(f -> Duration.between(f.getDepartureTime(delay), f.getArrivalTime()).toMinutes()))
+                .toList()
+                .map(durations -> durations.stream()
+                        .mapToLong(Long::longValue)
+                        .average()
+                        .orElse(0.0))
+                .blockingGet();
+    }
+
+    private static class AverageAccumulator {
+        double sum = 0;
+        int count = 0;
+
+        void add(double value) {
+            sum += value;
+            count++;
+        }
+
+        double average() {
+            return count > 0 ? sum / count : 0.0;
+        }
+    }
+
+    public Map<String, Double> avgDurationPerTailNumberWithReactive(List<Flight> flights, long delay) {
+        return Observable.fromIterable(flights)
+                .groupBy(flight -> flight.getAirplane().getTailNumber())
+                .flatMapSingle(groupedObservable -> groupedObservable
+                        .subscribeOn(Schedulers.computation())
+                        .map(flight -> (double) Duration
+                                .between(flight.getDepartureTime(delay), flight.getArrivalTime()).toMinutes())
+                        .collect(AverageAccumulator::new, AverageAccumulator::add)
+                        .map(AverageAccumulator::average)
+                        .map(average -> new AbstractMap.SimpleEntry<>(groupedObservable.getKey(), average)))
+                .toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue)
+                .blockingGet();
+    }
+
+    public long totalFlightWithReactiveFlowable(Flowable<Flight> flights, long delay, long batchSize)
+            throws InterruptedException {
+        TotalFlightSubscriber subscriber = new TotalFlightSubscriber(delay, batchSize);
+
+        flights
+                .subscribeOn(Schedulers.computation())
+                .subscribeWith(subscriber);
+
+        subscriber.await();
+
+        return subscriber.getCount();
+    }
+
+    public double totalDurationWithReactiveFlowable(Flowable<Flight> flights, long delay, long batchSize)
+            throws InterruptedException {
+        TotalDurationSubscriber subscriber = new TotalDurationSubscriber(delay, batchSize);
+
+        flights
+                .subscribeOn(Schedulers.computation())
+                .subscribe(subscriber);
+
+        subscriber.await();
+
+        return subscriber.getAverageDuration();
+    }
+
+    public Map<String, Double> avgDurationPerTailNumberWithReactiveFlowable(Flowable<Flight> flights, long delay,
+            long batchSize) throws InterruptedException {
+        AvgDurationSubscriber subscriber = new AvgDurationSubscriber(delay, batchSize);
+
+        flights
+                .subscribeOn(Schedulers.computation())
+                .subscribe(subscriber);
+
+        subscriber.await();
+
+        return subscriber.getResult();
     }
 }
