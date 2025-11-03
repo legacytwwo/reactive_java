@@ -79,7 +79,7 @@ public class FlightAnalyticsBenchmark {
     }
 
     @Benchmark
-    public Map<String, Double> groupBy_ParallelStream_Concurrent() {
+    public Map<String, Double> groupBy_ParallelStream() {
         return analytics.avgDurationPerTailNumberWithParallelStream(flights, delay);
     }
 
