@@ -200,19 +200,6 @@ public class FlightAnalytic {
                 .blockingGet();
     }
 
-    public double totalDurationWithReactive(List<Flight> flights, long delay) {
-        return Observable.fromIterable(flights)
-                .flatMap(flight -> Observable.just(flight)
-                        .subscribeOn(Schedulers.computation())
-                        .map(f -> Duration.between(f.getDepartureTime(delay), f.getArrivalTime()).toMinutes()))
-                .toList()
-                .map(durations -> durations.stream()
-                        .mapToLong(Long::longValue)
-                        .average()
-                        .orElse(0.0))
-                .blockingGet();
-    }
-
     private static class AverageAccumulator {
         double sum = 0;
         int count = 0;
@@ -225,6 +212,16 @@ public class FlightAnalytic {
         double average() {
             return count > 0 ? sum / count : 0.0;
         }
+    }
+
+    public double totalDurationWithReactive(List<Flight> flights, long delay) {
+        return Observable.fromIterable(flights)
+                .flatMap(flight -> Observable.just(flight)
+                        .subscribeOn(Schedulers.computation())
+                        .map(f -> (double) Duration.between(f.getDepartureTime(delay), f.getArrivalTime()).toMinutes()))
+                .collect(AverageAccumulator::new, AverageAccumulator::add)
+                .map(AverageAccumulator::average)
+                .blockingGet();
     }
 
     public Map<String, Double> avgDurationPerTailNumberWithReactive(List<Flight> flights, long delay) {
